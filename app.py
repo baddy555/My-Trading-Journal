@@ -24,17 +24,12 @@ class Trade(db.Model):
 
 @app.before_request
 def create_tables():
-    # This will create the database tables before the first request
-    # in a production-ready way.
     db.create_all()
 
 @app.route('/')
 def dashboard():
     all_trades = Trade.query.order_by(Trade.entry_date.desc()).all()
-    # (The rest of the dashboard stats calculation logic goes here...)
     closed_trades = [t for t in all_trades if t.pnl is not None]
-    total_trades = len(closed_trades)
-    winning_trades = len([t for t in closed_trades if t.pnl > 0])
     total_trades = len(closed_trades)
     winning_trades = len([t for t in closed_trades if t.pnl > 0])
     losing_trades = total_trades - winning_trades
@@ -53,6 +48,8 @@ def dashboard():
 def add_new_trade():
     entry_date_str = request.form.get('entry_date')
     if not entry_date_str: return "Error: Entry date is required", 400
+    
+    # Create the trade with required entry data first
     new_trade = Trade(
         ticker=request.form.get('ticker'),
         entry_date=date.fromisoformat(entry_date_str),
@@ -60,6 +57,22 @@ def add_new_trade():
         quantity=int(request.form.get('quantity')),
         my_notes=request.form.get('my_notes')
     )
+
+    # --- NEW: Check for optional exit data ---
+    exit_price_str = request.form.get('exit_price')
+    exit_date_str = request.form.get('exit_date')
+
+    # If both exit price and date are provided, log it as a closed trade
+    if exit_price_str and exit_date_str:
+        exit_price = float(exit_price_str)
+        new_trade.exit_price = exit_price
+        new_trade.exit_date = date.fromisoformat(exit_date_str)
+        
+        # Calculate P&L immediately
+        profit = (exit_price - new_trade.entry_price) * new_trade.quantity
+        new_trade.pnl = round(profit, 2)
+    # --- END OF NEW CODE ---
+
     db.session.add(new_trade)
     db.session.commit()
     return redirect(url_for('dashboard'))

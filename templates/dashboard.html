@@ -3,137 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Trading Journal</title>
+    <title>Trading Journal Dashboard</title>
+    <!-- Pico.css for effortless, clean styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1, h2 { color: #1a202c; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; vertical-align: middle; }
-        th { background-color: #edf2f7; font-weight: 600; }
-        tr:nth-child(even) { background-color: #f7fafc; }
-        .pnl-positive { color: #2f855a; font-weight: bold; }
-        .pnl-negative { color: #c53030; font-weight: bold; }
-        form { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; margin-bottom: 30px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; }
-        form input, form textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
-        .form-group { display: flex; flex-direction: column; flex-grow: 1; min-width: 120px; }
-        .form-group-notes { flex-basis: 100%; }
-        button, .button { background-color: #2b6cb0; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; text-decoration: none; display: inline-block; }
-        button:hover, .button:hover { background-color: #2c5282; }
-        .dashboard-stats { display: flex; justify-content: space-around; background-color: #edf2f7; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 30px; }
-        .stat { flex: 1; border-right: 1px solid #cbd5e0; }
-        .stat:last-child { border-right: none; }
-        .stat h3 { margin: 0 0 5px 0; font-size: 24px; }
-        .stat p { margin: 0; color: #718096; font-size: 14px; }
-        
-        /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 450px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; }
-        .modal-header h2 { border: none; margin: 0; }
-        .close-button { color: #aaa; font-size: 28px; font-weight: bold; }
-        .close-button:hover, .close-button:focus { color: black; text-decoration: none; cursor: pointer; }
-        .delete-link { color: #c53030; text-decoration: none; font-size: 14px; }
-        .delete-link:hover { text-decoration: underline; }
+        body { padding: 2rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { padding: 1rem; border: 1px solid var(--card-border-color, #e1e1e1); border-radius: var(--border-radius); text-align: center; }
+        .stat-card h3 { margin: 0; }
+        .positive { color: var(--pico-color-green-500); }
+        .negative { color: var(--pico-color-red-500); }
+        .neutral { color: var(--pico-color-secondary); }
+        td, th { vertical-align: middle; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>My AI Trading Journal</h1>
+    <main class="container">
+        <header>
+            <h1>📈 Trading Journal Dashboard</h1>
+            <p>Track your trades and performance.</p>
+        </header>
 
-        <!-- Performance Dashboard -->
-        <h2>Performance Dashboard</h2>
-        <div class="dashboard-stats">
-            <div class="stat"><h3>{{ stats.total_trades }}</h3><p>Total Trades</p></div>
-            <div class="stat"><h3>{{ stats.winning_trades }}</h3><p>Winners</p></div>
-            <div class="stat"><h3>{{ stats.losing_trades }}</h3><p>Losers</p></div>
-            <div class="stat"><h3>{{ stats.win_rate }}%</h3><p>Win Rate</p></div>
-            <div class="stat"><h3 class="{{ 'pnl-positive' if stats.total_pnl >= 0 else 'pnl-negative' }}">₹{{ '%.2f'|format(stats.total_pnl) }}</h3><p>Total PnL</p></div>
-        </div>
+        <!-- Stats Section -->
+        <section class="stats-grid">
+            <article class="stat-card">
+                <h3>{{ stats.total_trades }}</h3>
+                <p>Closed Trades</p>
+            </article>
+            <article class="stat-card">
+                <h3 class="positive">{{ stats.winning_trades }}</h3>
+                <p>Winning Trades</p>
+            </article>
+            <article class="stat-card">
+                <h3 class="negative">{{ stats.losing_trades }}</h3>
+                <p>Losing Trades</p>
+            </article>
+            <article class="stat-card">
+                <h3 class="{{ 'positive' if stats.win_rate >= 50 else 'negative' }}">{{ stats.win_rate }}%</h3>
+                <p>Win Rate</p>
+            </article>
+            <article class="stat-card">
+                <h3 class="{{ 'positive' if stats.total_pnl >= 0 else 'negative' }}">₹{{ '%.2f'|format(stats.total_pnl) }}</h3>
+                <p>Total P&L</p>
+            </article>
+        </section>
 
-        <!-- New Trade Form -->
-        <h2>Log a New Trade</h2>
-        <form action="/add" method="post">
-            <div class="form-group"><label>Ticker</label><input type="text" name="ticker" required></div>
-            <div class="form-group"><label>Entry Date</label><input type="date" name="entry_date" required></div>
-            <div class="form-group"><label>Entry Price</label><input type="number" step="0.01" name="entry_price" required></div>
-            <div class="form-group"><label>Quantity</label><input type="number" name="quantity" required></div>
-            <div class="form-group form-group-notes"><label>Notes / AI Analysis</label><textarea name="my_notes" rows="2" style="width: 100%;"></textarea></div>
-            <div class="form-group"><label> </label><button type="submit">Add Trade</button></div>
-        </form>
-
-        <!-- Trade History Table -->
-        <h2>Trade History</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ticker</th><th>Entry Date</th><th>Entry Price</th><th>Qty</th><th>Exit Date</th><th>Exit Price</th><th>PnL</th><th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for trade in trades %}
-                <tr>
-                    <td>{{ trade.ticker }}</td>
-                    <td>{{ trade.entry_date.strftime('%Y-%m-%d') }}</td>
-                    <td>{{ trade.entry_price }}</td>
-                    <td>{{ trade.quantity }}</td>
-                    <td>{{ trade.exit_date.strftime('%Y-%m-%d') if trade.exit_date else 'OPEN' }}</td>
-                    <td>{{ trade.exit_price or 'N/A' }}</td>
-                    <td class="{{ 'pnl-positive' if trade.pnl and trade.pnl > 0 else 'pnl-negative' }}">{{ '%.2f'|format(trade.pnl) if trade.pnl is not none else 'N/A' }}</td>
-                    <td>
-                        {% if trade.exit_price is none %}
-                        <button class="button" onclick="openCloseModal({{ trade.id }})" style="padding: 5px 10px; font-size: 12px; background-color: #38a169;">Close</button>
-                        {% endif %}
-                        <a href="/delete/{{ trade.id }}" onclick="return confirm('Are you sure you want to delete this trade?');" class="delete-link" style="margin-left: 10px;">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- The Close Trade Modal -->
-    <div id="closeModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Close Trade</h2>
-                <span class="close-button" onclick="closeModal()">×</span>
-            </div>
-            <form id="closeForm" action="" method="post" style="flex-direction: column; border: none; padding: 0;">
-                <div class="form-group">
-                    <label>Exit Date</label>
-                    <input type="date" name="exit_date" required>
+        <!-- Add New Trade Form -->
+        <details>
+            <summary>➕ Add New Trade (Open or Closed)</summary>
+            <form action="{{ url_for('add_new_trade') }}" method="POST">
+                <div class="grid">
+                    <input type="text" name="ticker" placeholder="Ticker (e.g., GESHIP.NS)" required>
+                    <input type="number" name="quantity" placeholder="Quantity" step="1" required>
                 </div>
-                <div class="form-group" style="margin-top: 15px;">
-                    <label>Exit Price</label>
-                    <input type="number" step="0.01" name="exit_price" required>
+                <div class="grid">
+                    <label for="entry_price">Entry
+                        <input type="number" id="entry_price" name="entry_price" placeholder="Price" step="any" required>
+                    </label>
+                    <label for="entry_date">Entry Date
+                        <input type="date" id="entry_date" name="entry_date" required>
+                    </label>
                 </div>
-                <button type="submit" style="margin-top: 20px;">Confirm Close</button>
+                
+                <!-- NEW: Optional Exit Fields -->
+                <hr>
+                <p><small>Leave the fields below empty to log an open trade.</small></p>
+                <div class="grid">
+                    <label for="exit_price">Exit (Optional)
+                        <input type="number" id="exit_price" name="exit_price" placeholder="Price" step="any">
+                    </label>
+                    <label for="exit_date">Exit Date (Optional)
+                        <input type="date" id="exit_date" name="exit_date">
+                    </label>
+                </div>
+                <hr>
+                
+                <textarea name="my_notes" placeholder="Your Notes & Strategy..."></textarea>
+                <button type="submit">Log Trade</button>
             </form>
+        </details>
+
+        <hr>
+
+        <!-- Trades Table -->
+        <h2>All Trades</h2>
+        <div class="overflow-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Entry</th>
+                        <th>Exit</th>
+                        <th>Qty</th>
+                        <th>P&L</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade in trades %}
+                    <tr>
+                        <td><strong>{{ trade.ticker }}</strong></td>
+                        <td>{{ trade.entry_price }}<br><small>{{ trade.entry_date.strftime('%d-%b-%Y') }}</small></td>
+                        <td>
+                            {% if trade.exit_price %}
+                                {{ trade.exit_price }}<br><small>{{ trade.exit_date.strftime('%d-%b-%Y') }}</small>
+                            {% else %}
+                                <!-- Close Trade Form -->
+                                <form action="{{ url_for('close_trade', trade_id=trade.id) }}" method="POST" style="display: flex; gap: 5px; align-items:center;">
+                                    <input type="number" name="exit_price" placeholder="Exit Price" step="any" required style="margin:0; padding: 5px;">
+                                    <input type="date" name="exit_date" required style="margin:0; padding: 5px;">
+                                    <button type="submit" class="pico-button" style="margin:0; padding: 5px;">Close</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td>{{ trade.quantity }}</td>
+                        <td class="{{ 'positive' if trade.pnl and trade.pnl > 0 else 'negative' if trade.pnl and trade.pnl < 0 else 'neutral' }}">
+                            {% if trade.pnl is not none %}{{ '%.2f'|format(trade.pnl) }}{% else %}Open{% endif %}
+                        </td>
+                        <td><small>{{ trade.my_notes }}</small></td>
+                        <td>
+                            <a href="{{ url_for('delete_trade', trade_id=trade.id) }}" onclick="return confirm('Are you sure you want to delete this trade?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No trades logged yet. Add one above!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-
-    <script>
-        const modal = document.getElementById('closeModal');
-        const form = document.getElementById('closeForm');
-
-        function openCloseModal(tradeId) {
-            // Set the form's action URL to the correct endpoint for this trade
-            form.action = `/close/${tradeId}`;
-            modal.style.display = 'block';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        // Close the modal if the user clicks anywhere outside of the modal content
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
-
+    </main>
 </body>
 </html>
